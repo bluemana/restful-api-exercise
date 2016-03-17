@@ -14,7 +14,7 @@ public class GetUsersHandlerTest {
 	public void handler_NoUsersGet_Returned() throws Exception {
 		GetUsersResponse expected = new GetUsersResponse(Collections.emptyList());
 		ProtocolHandler handler = new GetUsersHandler();
-		String json = handler.handle(null);
+		String json = handler.handle(null, null);
 		GetUsersResponse response = Configuration.DEFAULT_GSON.fromJson(json, GetUsersResponse.class);
 		Assert.assertArrayEquals(new Object[] {expected.getUsers()}, new Object[] {response.getUsers()});
 	}

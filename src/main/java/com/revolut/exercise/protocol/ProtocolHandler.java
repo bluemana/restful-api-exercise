@@ -4,5 +4,5 @@ public interface ProtocolHandler {
 	
 	public Link getLink();
 
-	public String handle(String json) throws Exception;
+	public String handle(Link link, String json) throws Exception;
 }

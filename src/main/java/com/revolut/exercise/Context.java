@@ -63,4 +63,34 @@ public enum Context {
 		}
 		return result;
 	}
+	
+	public User getUser(int id) {
+		User result = null;
+		try {
+			result = executor.submit(new Callable<User>() {
+
+				@Override
+				public User call() throws Exception {
+					return users.get(id);
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		return result;
+	}
+	
+	public void clear() {
+		try {
+			executor.submit(new Runnable() {
+
+				@Override
+				public void run() {
+					users.clear();
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+	}
 }

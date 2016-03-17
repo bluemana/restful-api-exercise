@@ -1,9 +1,12 @@
 package com.revolut.exercise.connect;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.revolut.exercise.Context;
 import com.revolut.exercise.protocol.Configuration;
+import com.revolut.exercise.protocol.user.GetUserResponse;
 import com.revolut.exercise.protocol.users.PostUsersRequest;
 import com.revolut.exercise.protocol.users.PostUsersResponse;
 
@@ -18,6 +21,11 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 
 public class HttpProtocolBridgeTest {
+	
+	@Before
+	public void cleanContext() {
+		Context.INSTANCE.clear();
+	}
 	
 	@Test
 	public void http_GetMappedResource_200() throws Exception {
@@ -56,6 +64,46 @@ public class HttpProtocolBridgeTest {
 			httpResponse.status(),
 			response.getUser().getName(),
 			response.getUser().getBalance()});
+	}
+	
+	@Test
+	public void http_GetUserNoUser_Empty() throws Exception {
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		HttpRequest httpRequest = createHttpRequest(HttpMethod.GET, "/user/1", null);
+		channel.writeInbound(httpRequest);
+		channel.checkException();
+		FullHttpResponse httpResponse = channel.readOutbound();
+		String json = httpResponse.content().toString(CharsetUtil.UTF_8);
+		GetUserResponse getUserResponse = Configuration.DEFAULT_GSON.fromJson(json, GetUserResponse.class);
+		Assert.assertArrayEquals(new Object[] {HttpResponseStatus.OK, null}, new Object[] {
+			httpResponse.status(), getUserResponse.getUser()});
+	}
+	
+	@Test
+	public void http_GetUser_Retrieved() throws Exception {
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		PostUsersRequest request = new PostUsersRequest("Giulio", 1000000);
+		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/users", Configuration.DEFAULT_GSON.toJson(request));
+		channel.writeInbound(httpRequest);
+		channel.checkException();
+		FullHttpResponse httpResponse = channel.readOutbound();
+		PostUsersResponse postUserResponse = Configuration.DEFAULT_GSON.fromJson(
+			httpResponse.content().toString(CharsetUtil.UTF_8), PostUsersResponse.class);
+		httpRequest = createHttpRequest(HttpMethod.GET, "/user/" + postUserResponse.getUser().getId(), null);
+		channel.writeInbound(httpRequest);
+		channel.checkException();
+		httpResponse = channel.readOutbound();
+		String json = httpResponse.content().toString(CharsetUtil.UTF_8);
+		GetUserResponse getUserResponse = Configuration.DEFAULT_GSON.fromJson(json, GetUserResponse.class);
+		Assert.assertArrayEquals(new Object[] {
+			HttpResponseStatus.OK,
+			postUserResponse.getUser().getId(),
+			request.getName(),
+			request.getBalance()}, new Object[] {
+			httpResponse.status(),
+			getUserResponse.getUser().getId(),
+			getUserResponse.getUser().getName(),
+			getUserResponse.getUser().getBalance()});
 	}
 	
 	public static HttpRequest createHttpRequest(HttpMethod method, String path, String content) {

@@ -18,7 +18,7 @@ public class PostUsersHandler implements ProtocolHandler {
 	}
 
 	@Override
-	public String handle(String json) throws Exception {
+	public String handle(Link link, String json) throws Exception {
 		PostUsersRequest request = Configuration.DEFAULT_GSON.fromJson(json, PostUsersRequest.class);
 		User user = Context.INSTANCE.createUser(request.getName(), request.getBalance());
 		return Configuration.DEFAULT_GSON.toJson(new PostUsersResponse(user));

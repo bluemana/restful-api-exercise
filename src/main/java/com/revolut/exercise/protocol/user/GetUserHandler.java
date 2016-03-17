@@ -1,4 +1,4 @@
-package com.revolut.exercise.protocol.users;
+package com.revolut.exercise.protocol.user;
 
 import com.revolut.exercise.Context;
 import com.revolut.exercise.protocol.Configuration;
@@ -7,9 +7,9 @@ import com.revolut.exercise.protocol.ProtocolHandler;
 
 import io.netty.handler.codec.http.HttpMethod;
 
-public class GetUsersHandler implements ProtocolHandler {
-
-	private static final Link LINK = new Link("/users", "users", HttpMethod.GET);
+public class GetUserHandler implements ProtocolHandler {
+	
+	private static final Link LINK = new Link("/user", "user", HttpMethod.GET);
 	
 	@Override
 	public Link getLink() {
@@ -18,6 +18,6 @@ public class GetUsersHandler implements ProtocolHandler {
 
 	@Override
 	public String handle(Link link, String json) throws Exception {
-		return Configuration.DEFAULT_GSON.toJson(new GetUsersResponse(Context.INSTANCE.getUsers()));
+		return Configuration.DEFAULT_GSON.toJson(new GetUserResponse(Context.INSTANCE.getUser(link.getResourceId())));
 	}
 }

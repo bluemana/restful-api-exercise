@@ -17,7 +17,7 @@ public class GetRootHandler implements ProtocolHandler {
 	}
 
 	@Override
-	public String handle(String json) throws Exception {
+	public String handle(Link link, String json) throws Exception {
 		return Configuration.DEFAULT_GSON.toJson(RESPONSE);
 	}
 }
