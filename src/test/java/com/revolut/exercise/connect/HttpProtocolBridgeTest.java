@@ -3,6 +3,10 @@ package com.revolut.exercise.connect;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.revolut.exercise.protocol.Configuration;
+import com.revolut.exercise.protocol.users.PostUsersRequest;
+import com.revolut.exercise.protocol.users.PostUsersResponse;
+
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -35,9 +39,28 @@ public class HttpProtocolBridgeTest {
 		Assert.assertArrayEquals(new Object[] {HttpResponseStatus.BAD_REQUEST}, new Object[] {response.status()});
 	}
 	
+	@Test
+	public void http_PostUsers_Created() throws Exception {
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		PostUsersRequest request = new PostUsersRequest("Giulio", 1000000);
+		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/users", Configuration.DEFAULT_GSON.toJson(request));
+		channel.writeInbound(httpRequest);
+		channel.checkException();
+		FullHttpResponse httpResponse = channel.readOutbound();
+		PostUsersResponse response = Configuration.DEFAULT_GSON.fromJson(
+			httpResponse.content().toString(CharsetUtil.UTF_8), PostUsersResponse.class);
+		Assert.assertArrayEquals(new Object[] {
+			HttpResponseStatus.OK,
+			request.getName(),
+			request.getBalance()}, new Object[] {
+			httpResponse.status(),
+			response.getUser().getName(),
+			response.getUser().getBalance()});
+	}
+	
 	public static HttpRequest createHttpRequest(HttpMethod method, String path, String content) {
 		HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
-				method, path, content == null ? Unpooled.buffer(0) : Unpooled.copiedBuffer(content, CharsetUtil.UTF_8));
+			method, path, content == null ? Unpooled.buffer(0) : Unpooled.copiedBuffer(content, CharsetUtil.UTF_8));
 		return request;
 	}
 }

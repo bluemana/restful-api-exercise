@@ -1,21 +1,15 @@
-package com.revolut.exercise.core;
+package com.revolut.exercise.protocol.users;
 
-public class User {
+public class PostUsersRequest {
 
-	private final int id;
 	private final String name;
 	private final int balance;
 	
-	public User(int id, String name, int balance) {
-		this.id = id;
+	public PostUsersRequest(String name, int balance) {
 		this.name = name;
 		this.balance = balance;
 	}
-	
-	public int getId() {
-		return id;
-	}
-	
+
 	public String getName() {
 		return name;
 	}

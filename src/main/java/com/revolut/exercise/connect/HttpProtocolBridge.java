@@ -36,22 +36,25 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 			ProtocolHandler handler = Configuration.HANDLERS.get(link);
 			if (handler != null) {
 				try {
-					String json = handler.handle(httpMethod, request.content().toString(CharsetUtil.UTF_8));
+					String json = handler.handle(request.content().toString(CharsetUtil.UTF_8));
 					response = createHttpResponse(HttpResponseStatus.OK, json);
 				} catch (Exception e) {
+					LOGGER.error(e.getMessage(), e);
 					response = createHttpResponse(HttpResponseStatus.BAD_REQUEST, e.getMessage());
 				}
 			} else {
+				LOGGER.info("Unmapped link: " + link);
 				response = createHttpResponse(HttpResponseStatus.BAD_REQUEST, "Unrecognized URI or Method");
 			}
 		} else {
+			LOGGER.info("Malformed request");
 			response = createHttpResponse(HttpResponseStatus.BAD_REQUEST,
 					request.decoderResult().cause().getMessage());
 		}
 		response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
 		LOGGER.info("Sending response:\n" + response);
 		ctx.writeAndFlush(response);
-		if (!HttpHeaderUtil.isKeepAlive(request)) {
+		if (!HttpHeaderUtil.isKeepAlive(request) || response.status() == HttpResponseStatus.BAD_REQUEST) {
 			ctx.close();
 		}
 	}

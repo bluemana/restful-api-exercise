@@ -40,6 +40,11 @@ public class Link {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(uri, method.name());
+		return Objects.hash(uri, method.name().toString());
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("link{uri=%s;rel=%s;method=%s}", uri, rel, method.name());
 	}
 }

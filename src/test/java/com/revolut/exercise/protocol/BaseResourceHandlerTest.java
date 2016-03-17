@@ -19,7 +19,7 @@ public class BaseResourceHandlerTest {
 		});
 		String expectedString = Configuration.DEFAULT_GSON.toJson(expected);
 		ProtocolHandler handler = new BaseResourceHandler();
-		String result = handler.handle(HttpMethod.GET, null);
+		String result = handler.handle(null);
 		Assert.assertArrayEquals(new String[] {expectedString}, new String[] {result});
 	}
 }

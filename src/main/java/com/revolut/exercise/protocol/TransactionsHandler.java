@@ -16,7 +16,7 @@ public class TransactionsHandler implements ProtocolHandler {
 	}
 
 	@Override
-	public String handle(HttpMethod method, String json) {
+	public String handle(String json) {
 		return Configuration.DEFAULT_GSON.toJson(new Response());
 	}
 }
