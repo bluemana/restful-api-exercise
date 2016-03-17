@@ -11,7 +11,7 @@ import com.revolut.exercise.protocol.ProtocolHandler;
 public class GetTransactionsHandlerTest {
 
 	@Test
-	public void handler_NoUsersGet_Returned() throws Exception {
+	public void handler_NoTransactionsGet_Returned() throws Exception {
 		GetTransactionsResponse expected = new GetTransactionsResponse(Collections.emptyList());
 		ProtocolHandler handler = new GetTransactionsHandler();
 		String json = handler.handle(null, null);

@@ -25,12 +25,14 @@ public enum Context {
 	private final Map<Integer, User> users;
 	private int userId;
 	private final Map<Integer, Transaction> transactions;
+	private int transactionId;
 	
 	private Context() {
 		executor = Executors.newSingleThreadExecutor();
 		users = new HashMap<Integer, User>();
 		userId = 0;
 		transactions = new HashMap<Integer, Transaction>();
+		transactionId = 0;
 	}
 	
 	public Collection<User> getUsers() {
@@ -90,6 +92,9 @@ public enum Context {
 				@Override
 				public void run() {
 					users.clear();
+					userId = 0;
+					transactions.clear();
+					transactionId = 0;
 				}
 			}).get();
 		} catch (InterruptedException | ExecutionException e) {
@@ -105,6 +110,34 @@ public enum Context {
 				@Override
 				public Collection<Transaction> call() throws Exception {
 					return new ArrayList<Transaction>(transactions.values());
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		return result;
+	}
+	
+	public Transaction transact(int sourceUserId, int destinationUserId, int amount) {
+		Transaction result = null;
+		try {
+			result = executor.submit(new Callable<Transaction>() {
+
+				@Override
+				public Transaction call() throws Exception {
+					User sourceUser = users.get(sourceUserId);
+					User destinationUser = users.get(destinationUserId);
+					if (sourceUser != null && destinationUser != null && sourceUser.getBalance() >= amount) {
+						sourceUser = new User(sourceUser.getId(), sourceUser.getName(), sourceUser.getBalance() - amount);
+						destinationUser = new User(destinationUser.getId(), destinationUser.getName(), destinationUser.getBalance() + amount);
+						users.put(sourceUserId, sourceUser);
+						users.put(destinationUserId, destinationUser);
+						Transaction transaction = new Transaction(++transactionId, sourceUserId, destinationUserId, amount);
+						transactions.put(transaction.getId(), transaction);
+						return transaction;
+					} else {
+						throw new IllegalArgumentException("Invalid transaction");
+					}
 				}
 			}).get();
 		} catch (InterruptedException | ExecutionException e) {

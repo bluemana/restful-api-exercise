@@ -14,9 +14,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.revolut.exercise.core.Transaction;
 import com.revolut.exercise.core.User;
 import com.revolut.exercise.protocol.root.GetRootHandler;
 import com.revolut.exercise.protocol.transactions.GetTransactionsHandler;
+import com.revolut.exercise.protocol.transactions.PostTransactionsHandler;
 import com.revolut.exercise.protocol.user.GetUserHandler;
 import com.revolut.exercise.protocol.users.GetUsersHandler;
 import com.revolut.exercise.protocol.users.PostUsersHandler;
@@ -41,7 +43,7 @@ public class Configuration {
 		}
 	}
 	
-	private static class LinkDeserializer implements JsonDeserializer<Link> {
+	private static class LinkTypeDeserializer implements JsonDeserializer<Link> {
 
 		@Override
 		public Link deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) throws JsonParseException {
@@ -80,6 +82,36 @@ public class Configuration {
 		}
 	}
 	
+	private static class TransactionTypeAdapter implements JsonSerializer<Transaction>, JsonDeserializer<Transaction> {
+		
+		private static final Gson GSON;
+		
+		static {
+			GsonBuilder builder = new GsonBuilder();
+			builder.registerTypeAdapter(HttpMethod.class, new HttpMethodTypeAdapter());
+			GSON = builder.create();
+		}
+		
+		@Override
+		public JsonElement serialize(Transaction transaction, Type type, JsonSerializationContext ctx) {
+			JsonObject result = GSON.toJsonTree(transaction).getAsJsonObject();
+			result.add("links", GSON.toJsonTree(new Link[] {
+				new Link("/transaction/" + transaction.getId(), "self", HttpMethod.GET)
+			}));
+			return result;
+		}
+		
+		@Override
+		public Transaction deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) throws JsonParseException {
+			JsonObject jsonObject = json.getAsJsonObject();
+			Transaction transaction = new Transaction(jsonObject.get("id").getAsInt(),
+					jsonObject.get("sourceUserId").getAsInt(),
+					jsonObject.get("destinationUserId").getAsInt(),
+					jsonObject.get("amount").getAsInt());
+			return transaction;
+		}
+	}
+	
 	static {
 		ProtocolHandler handler = new GetRootHandler();
 		HANDLERS.put(handler.getLink(), handler);
@@ -91,6 +123,8 @@ public class Configuration {
 		HANDLERS.put(handler.getLink(), handler);
 		handler = new GetTransactionsHandler();
 		HANDLERS.put(handler.getLink(), handler);
+		handler = new PostTransactionsHandler();
+		HANDLERS.put(handler.getLink(), handler);
 		
 		DEFAULT_GSON = createDefaultGsonBuilder().create();
 	}
@@ -98,8 +132,9 @@ public class Configuration {
 	public static GsonBuilder createDefaultGsonBuilder() {
 		GsonBuilder result = new GsonBuilder();
 		result.registerTypeAdapter(HttpMethod.class, new HttpMethodTypeAdapter());
-		result.registerTypeAdapter(Link.class, new LinkDeserializer());
+		result.registerTypeAdapter(Link.class, new LinkTypeDeserializer());
 		result.registerTypeAdapter(User.class, new UserTypeAdapter());
+		result.registerTypeAdapter(Transaction.class, new TransactionTypeAdapter());
 		return result;
 	}
 }

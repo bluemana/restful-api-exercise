@@ -5,7 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.revolut.exercise.Context;
+import com.revolut.exercise.core.User;
 import com.revolut.exercise.protocol.Configuration;
+import com.revolut.exercise.protocol.transactions.PostTransactionsRequest;
+import com.revolut.exercise.protocol.transactions.PostTransactionsResponse;
 import com.revolut.exercise.protocol.user.GetUserResponse;
 import com.revolut.exercise.protocol.users.PostUsersRequest;
 import com.revolut.exercise.protocol.users.PostUsersResponse;
@@ -104,6 +107,31 @@ public class HttpProtocolBridgeTest {
 			getUserResponse.getUser().getId(),
 			getUserResponse.getUser().getName(),
 			getUserResponse.getUser().getBalance()});
+	}
+	
+	@Test
+	public void http_ExecuteTransaction_Executed() throws Exception {
+		User sourceUser = Context.INSTANCE.createUser("Giulio", 100);
+		User destinationUser = Context.INSTANCE.createUser("Adam", 0);
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		PostTransactionsRequest request = new PostTransactionsRequest(sourceUser.getId(), destinationUser.getId(), 100);
+		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/transactions", Configuration.DEFAULT_GSON.toJson(request));
+		channel.writeInbound(httpRequest);
+		channel.checkException();
+		FullHttpResponse httpResponse = channel.readOutbound();
+		String json = httpResponse.content().toString(CharsetUtil.UTF_8);
+		PostTransactionsResponse response = Configuration.DEFAULT_GSON.fromJson(json, PostTransactionsResponse.class);
+		Assert.assertArrayEquals(new Object[] {
+			HttpResponseStatus.OK,
+			request.getSourceUserId(),
+			request.getDestinationUserId(),
+			sourceUser.getBalance(),
+			destinationUser.getBalance()}, new Object[] {
+			httpResponse.status(),
+			response.getTransaction().getSourceUserId(),
+			response.getTransaction().getDestinationUserId(),
+			Context.INSTANCE.getUser(sourceUser.getId()).getBalance() + response.getTransaction().getAmount(),
+			Context.INSTANCE.getUser(destinationUser.getId()).getBalance() - response.getTransaction().getAmount()});
 	}
 	
 	public static HttpRequest createHttpRequest(HttpMethod method, String path, String content) {

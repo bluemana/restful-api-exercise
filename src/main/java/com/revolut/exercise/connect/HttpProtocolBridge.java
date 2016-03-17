@@ -27,7 +27,8 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		FullHttpRequest request = (FullHttpRequest) msg;
-		LOGGER.info("Received request:\n" + request);
+		String content = request.content().toString(CharsetUtil.UTF_8);
+		LOGGER.info("Received request: " + request + (content.length() > 0 ? "\n" + content : ""));
 		FullHttpResponse response = null;
 		if (request.decoderResult().isSuccess()) {
 			String uri = request.uri();
@@ -36,7 +37,7 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 			ProtocolHandler handler = Configuration.HANDLERS.get(link);
 			if (handler != null) {
 				try {
-					String json = handler.handle(link, request.content().toString(CharsetUtil.UTF_8));
+					String json = handler.handle(link, content);
 					response = createHttpResponse(HttpResponseStatus.OK, json);
 				} catch (Exception e) {
 					LOGGER.error(e.getMessage(), e);
@@ -44,7 +45,7 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 				}
 			} else {
 				LOGGER.info("Unmapped link: " + link);
-				response = createHttpResponse(HttpResponseStatus.BAD_REQUEST, "Unrecognized URI or Method");
+				response = createHttpResponse(HttpResponseStatus.BAD_REQUEST, "Unrecognized URI or HTTP method");
 			}
 		} else {
 			LOGGER.info("Malformed request");
@@ -52,7 +53,8 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 					request.decoderResult().cause().getMessage());
 		}
 		response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
-		LOGGER.info("Sending response:\n" + response);
+		content = response.content().toString(CharsetUtil.UTF_8);
+		LOGGER.info("Sending response: " + response + (content.length() > 0 ? "\n" + content : ""));
 		ctx.writeAndFlush(response);
 		if (!HttpHeaderUtil.isKeepAlive(request) || response.status() == HttpResponseStatus.BAD_REQUEST) {
 			ctx.close();
