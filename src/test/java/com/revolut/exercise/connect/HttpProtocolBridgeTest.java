@@ -13,16 +13,26 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.CharsetUtil;
 
-public class RevolutRequestHandlerTest {
+public class HttpProtocolBridgeTest {
 	
 	@Test
-	public void http_GetBaseResource_OK() throws Exception {
-		EmbeddedChannel channel = new EmbeddedChannel(new RevolutRequestHandler());
+	public void http_GetMappedResource_200() throws Exception {
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
 		HttpRequest request = createHttpRequest(HttpMethod.GET, "/", null);
 		channel.writeInbound(request);
 		channel.checkException();
 		FullHttpResponse response = channel.readOutbound();
 		Assert.assertArrayEquals(new Object[] {HttpResponseStatus.OK}, new Object[] {response.status()});
+	}
+	
+	@Test
+	public void http_GetUnmappedResource_400() throws Exception {
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		HttpRequest request = createHttpRequest(HttpMethod.GET, "/something", null);
+		channel.writeInbound(request);
+		channel.checkException();
+		FullHttpResponse response = channel.readOutbound();
+		Assert.assertArrayEquals(new Object[] {HttpResponseStatus.BAD_REQUEST}, new Object[] {response.status()});
 	}
 	
 	public static HttpRequest createHttpRequest(HttpMethod method, String path, String content) {

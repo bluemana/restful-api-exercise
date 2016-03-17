@@ -14,6 +14,6 @@ public class RevolutChannelInitializer extends ChannelInitializer<Channel> {
 			new HttpRequestDecoder(),
 			new HttpResponseEncoder(),
 			new HttpObjectAggregator(1024 * 1024),
-			new RevolutRequestHandler());
+			new HttpProtocolBridge());
 	}
 }
