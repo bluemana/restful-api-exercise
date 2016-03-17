@@ -103,7 +103,7 @@ POST /users
 **Response**
 
 ```
-HTTP 201 CREATED
+HTTP 200 OK
 
 {
   "user": {
@@ -138,8 +138,8 @@ HTTP 200 OK
   "transactions": [
     {
       "id": 1,
-      "source-user-id": 1,
-      "destination-user-id": 2,
+      "sourceUserId": 1,
+      "destinationUserId": 2,
       "amount": 2,
       "links": [
         {
@@ -168,8 +168,8 @@ HTTP 200 OK
 POST /transactions
 
 {
-  "source-user-id": 1,
-  "destination-user-id": 2,
+  "sourceUserId": 1,
+  "destinationUserId": 2,
   "amount": 2
 }
 ```
@@ -182,8 +182,8 @@ HTTP 200 OK
 {
   "transaction": {
     "id": 1,
-    "source-user-id": 1,
-    "destination-user-id": 2,
+    "sourceUserId": 1,
+    "destinationUserId": 2,
     "amount": 2,
     "links": [
       {
@@ -193,14 +193,5 @@ HTTP 200 OK
       }
     ]
   }
-}
-```
-
-```
-HTTP 400 BAD REQUEST
-
-{
-  "code": 1,
-  "description": "insufficient funds"
 }
 ```
