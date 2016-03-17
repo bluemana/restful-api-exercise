@@ -36,7 +36,7 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 			ProtocolHandler handler = Configuration.HANDLERS.get(link);
 			if (handler != null) {
 				try {
-					String json = handler.handle(request.content().toString(CharsetUtil.UTF_8));
+					String json = handler.handle(httpMethod, request.content().toString(CharsetUtil.UTF_8));
 					response = createHttpResponse(HttpResponseStatus.OK, json);
 				} catch (Exception e) {
 					response = createHttpResponse(HttpResponseStatus.BAD_REQUEST, e.getMessage());

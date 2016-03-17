@@ -27,7 +27,7 @@ public class BaseResourceHandler implements ProtocolHandler {
 	}
 
 	@Override
-	public String handle(String json) {
-		return Configuration.GSON.toJson(RESPONSE);
+	public String handle(HttpMethod method, String json) throws Exception {
+		return Configuration.DEFAULT_GSON.toJson(RESPONSE);
 	}
 }

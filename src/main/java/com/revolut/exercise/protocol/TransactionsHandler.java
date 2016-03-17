@@ -1,13 +1,10 @@
 package com.revolut.exercise.protocol;
 
-import com.google.gson.Gson;
-
 import io.netty.handler.codec.http.HttpMethod;
 
 public class TransactionsHandler implements ProtocolHandler {
 
 	private static final Link LINK = new Link("/transactions", "transactions", HttpMethod.GET);
-	private static final Gson gson = new Gson();
 	
 	private class Response {
 		
@@ -19,7 +16,7 @@ public class TransactionsHandler implements ProtocolHandler {
 	}
 
 	@Override
-	public String handle(String json) {
-		return gson.toJson(new Response());
+	public String handle(HttpMethod method, String json) {
+		return Configuration.DEFAULT_GSON.toJson(new Response());
 	}
 }

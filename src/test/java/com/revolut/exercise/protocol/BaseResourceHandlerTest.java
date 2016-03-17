@@ -11,15 +11,15 @@ import io.netty.handler.codec.http.HttpMethod;
 public class BaseResourceHandlerTest {
 
 	@Test
-	public void json_Empty_Default() {
+	public void handler_Get_StartingPoint() throws Exception {
 		Map<String, Object> expected = new HashMap<String, Object>();
 		expected.put("links", new Link[] {
 			new Link("/users", "users", HttpMethod.GET),
 			new Link("/transactions", "transactions", HttpMethod.GET)
 		});
-		String expectedString = Configuration.GSON.toJson(expected);
-		BaseResourceHandler handler = new BaseResourceHandler();
-		String result = handler.handle(null);
+		String expectedString = Configuration.DEFAULT_GSON.toJson(expected);
+		ProtocolHandler handler = new BaseResourceHandler();
+		String result = handler.handle(HttpMethod.GET, null);
 		Assert.assertArrayEquals(new String[] {expectedString}, new String[] {result});
 	}
 }

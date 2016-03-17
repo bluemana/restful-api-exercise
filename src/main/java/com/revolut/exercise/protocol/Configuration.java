@@ -16,7 +16,7 @@ import io.netty.handler.codec.http.HttpMethod;
 public class Configuration {
 
 	public static final Map<Link, ProtocolHandler> HANDLERS = new HashMap<Link, ProtocolHandler>();
-	public static final Gson GSON;
+	public static final Gson DEFAULT_GSON;
 	
 	static {
 		ProtocolHandler handler = new BaseResourceHandler();
@@ -26,14 +26,18 @@ public class Configuration {
 		handler = new TransactionsHandler();
 		HANDLERS.put(handler.getLink(), handler);
 		
-		GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(HttpMethod.class, new JsonSerializer<HttpMethod>() {
+		DEFAULT_GSON = createDefaultGsonBuilder().create();
+	}
+	
+	public static GsonBuilder createDefaultGsonBuilder() {
+		GsonBuilder result = new GsonBuilder();
+		result.registerTypeAdapter(HttpMethod.class, new JsonSerializer<HttpMethod>() {
 
 			@Override
 			public JsonElement serialize(HttpMethod method, Type type, JsonSerializationContext ctx) {
 				return new JsonPrimitive(method.toString());
 			}
 		});
-		GSON = builder.create();
+		return result;
 	}
 }
