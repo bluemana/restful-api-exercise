@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
+import com.revolut.exercise.core.Transaction;
 import com.revolut.exercise.core.User;
 
 public enum Context {
@@ -23,11 +24,13 @@ public enum Context {
 	private final ExecutorService executor;
 	private final Map<Integer, User> users;
 	private int userId;
+	private final Map<Integer, Transaction> transactions;
 	
 	private Context() {
 		executor = Executors.newSingleThreadExecutor();
 		users = new HashMap<Integer, User>();
 		userId = 0;
+		transactions = new HashMap<Integer, Transaction>();
 	}
 	
 	public Collection<User> getUsers() {
@@ -92,5 +95,21 @@ public enum Context {
 		} catch (InterruptedException | ExecutionException e) {
 			LOGGER.error(e.getMessage(), e);
 		}
+	}
+	
+	public Collection<Transaction> getTransactions() {
+		Collection<Transaction> result = Collections.emptyList();
+		try {
+			result = executor.submit(new Callable<Collection<Transaction>>() {
+
+				@Override
+				public Collection<Transaction> call() throws Exception {
+					return new ArrayList<Transaction>(transactions.values());
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		return result;
 	}
 }

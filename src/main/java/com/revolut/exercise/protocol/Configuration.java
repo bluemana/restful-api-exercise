@@ -16,6 +16,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.revolut.exercise.core.User;
 import com.revolut.exercise.protocol.root.GetRootHandler;
+import com.revolut.exercise.protocol.transactions.GetTransactionsHandler;
 import com.revolut.exercise.protocol.user.GetUserHandler;
 import com.revolut.exercise.protocol.users.GetUsersHandler;
 import com.revolut.exercise.protocol.users.PostUsersHandler;
@@ -88,7 +89,7 @@ public class Configuration {
 		HANDLERS.put(handler.getLink(), handler);
 		handler = new GetUserHandler();
 		HANDLERS.put(handler.getLink(), handler);
-		handler = new TransactionsHandler();
+		handler = new GetTransactionsHandler();
 		HANDLERS.put(handler.getLink(), handler);
 		
 		DEFAULT_GSON = createDefaultGsonBuilder().create();
