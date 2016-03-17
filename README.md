@@ -1,3 +1,5 @@
+# RESTful API Exercise
+
 Implementation of a RESTful API for money transfers between users.
 
 ## API
@@ -77,7 +79,7 @@ HTTP 200 OK
   ],
   "links": [
     {
-      "uri": "/user",
+      "uri": "/users",
       "rel": "create",
       "method": "POST"
     }
@@ -90,7 +92,7 @@ HTTP 200 OK
 **Request**
 
 ```
-POST /user
+POST /users
 
 {
   "name": "Andrew",
@@ -138,12 +140,19 @@ HTTP 200 OK
       "id": 1,
       "source-user-id": 1,
       "destination-user-id": 2,
-      "amount": 2
+      "amount": 2,
+      "links": [
+        {
+          "uri": "/transaction/1",
+          "rel": "self",
+          "method": "GET"
+        }
+      ]
     }
   ],
   "links": [
     {
-      "uri": "/transaction",
+      "uri": "/transactions",
       "rel": "execute",
       "method": "POST"
     }
@@ -156,7 +165,7 @@ HTTP 200 OK
 **Request**
 
 ```
-POST /transaction
+POST /transactions
 
 {
   "source-user-id": 1,
@@ -175,7 +184,14 @@ HTTP 200 OK
     "id": 1,
     "source-user-id": 1,
     "destination-user-id": 2,
-    "amount": 2
+    "amount": 2,
+    "links": [
+      {
+        "uri": "/transaction/1",
+        "rel": "self",
+        "method": "GET"
+      }
+    ]
   }
 }
 ```
