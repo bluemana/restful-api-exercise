@@ -13,6 +13,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.revolut.exercise.protocol.root.GetRootHandler;
 import com.revolut.exercise.protocol.users.GetUsersHandler;
 import com.revolut.exercise.protocol.users.PostUsersHandler;
 
@@ -37,7 +38,7 @@ public class Configuration {
 	}
 	
 	static {
-		ProtocolHandler handler = new BaseResourceHandler();
+		ProtocolHandler handler = new GetRootHandler();
 		HANDLERS.put(handler.getLink(), handler);
 		handler = new GetUsersHandler();
 		HANDLERS.put(handler.getLink(), handler);
