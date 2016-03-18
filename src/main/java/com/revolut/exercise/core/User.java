@@ -23,4 +23,19 @@ public class User {
 	public int getBalance() {
 		return balance;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj != null && obj instanceof User && ((User) obj).id == id;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Integer.hashCode(id);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("user{id=%d;name=%s;balance=%d}", id, name, balance);
+	}
 }

@@ -3,9 +3,10 @@ package com.revolut.exercise.connect;
 
 import org.apache.log4j.Logger;
 
+import com.revolut.exercise.Context;
 import com.revolut.exercise.protocol.Link;
-import com.revolut.exercise.protocol.ProtocolHandler;
 import com.revolut.exercise.protocol.ProtocolConfiguration;
+import com.revolut.exercise.protocol.ProtocolHandler;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -25,9 +26,11 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 	private static final Logger LOGGER = Logger.getLogger(HttpProtocolBridge.class);
 	
 	private final ProtocolConfiguration protocolConfiguration;
+	private final Context context;
 	
-	public HttpProtocolBridge(ProtocolConfiguration protocolConfiguration) {
+	public HttpProtocolBridge(ProtocolConfiguration protocolConfiguration, Context context) {
 		this.protocolConfiguration = protocolConfiguration;
+		this.context = context;
 	}
 	
 	@Override
@@ -43,7 +46,7 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 			ProtocolHandler handler = protocolConfiguration.getHandlers().get(link);
 			if (handler != null) {
 				try {
-					String json = handler.handle(link, content);
+					String json = handler.handle(link, content, context);
 					response = createHttpResponse(HttpResponseStatus.OK, json);
 				} catch (Exception e) {
 					LOGGER.error(e.getMessage(), e);

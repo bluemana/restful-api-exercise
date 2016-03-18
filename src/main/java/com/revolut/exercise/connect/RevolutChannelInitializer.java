@@ -1,5 +1,6 @@
 package com.revolut.exercise.connect;
 
+import com.revolut.exercise.Context;
 import com.revolut.exercise.protocol.ProtocolConfiguration;
 
 import io.netty.channel.Channel;
@@ -11,9 +12,11 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 public class RevolutChannelInitializer extends ChannelInitializer<Channel> {
 
 	private final ProtocolConfiguration protocolConfiguration;
+	private final Context context;
 	
-	public RevolutChannelInitializer(ProtocolConfiguration protocolConfiguration) {
+	public RevolutChannelInitializer(ProtocolConfiguration protocolConfiguration, Context context) {
 		this.protocolConfiguration = protocolConfiguration;
+		this.context = context;
 	}
 	
 	@Override
@@ -22,6 +25,6 @@ public class RevolutChannelInitializer extends ChannelInitializer<Channel> {
 			new HttpRequestDecoder(),
 			new HttpResponseEncoder(),
 			new HttpObjectAggregator(1024 * 1024),
-			new HttpProtocolBridge(protocolConfiguration));
+			new HttpProtocolBridge(protocolConfiguration, context));
 	}
 }

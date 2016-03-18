@@ -1,21 +1,38 @@
 package com.revolut.exercise.protocol.transactions;
 
-import java.util.Collections;
-
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.revolut.exercise.Context;
+import com.revolut.exercise.core.Transaction;
+import com.revolut.exercise.core.User;
 import com.revolut.exercise.protocol.JsonConfiguration;
-import com.revolut.exercise.protocol.ProtocolHandler;
+import com.revolut.exercise.protocol.ProtocolHandlerTest;
 
-public class GetTransactionsHandlerTest {
+public class GetTransactionsHandlerTest extends ProtocolHandlerTest {
+
+	public GetTransactionsHandlerTest() {
+		super(new GetTransactionsHandler(new JsonConfiguration()));
+	}
 
 	@Test
-	public void handler_NoTransactionsGet_Returned() throws Exception {
-		GetTransactionsResponse expected = new GetTransactionsResponse(Collections.emptyList());
-		ProtocolHandler handler = new GetTransactionsHandler(new JsonConfiguration());
-		String json = handler.handle(null, null);
-		GetTransactionsResponse response = handler.getJsonConfiguration().getGson().fromJson(json, GetTransactionsResponse.class);
-		Assert.assertArrayEquals(new Object[] {expected.getTransactions()}, new Object[] {response.getTransactions()});
+	public void handle_NoTransactions_Empty() throws Exception {
+		Context context = new Context();
+		String json = getHandler().handle(null, null, context);
+		GetTransactionsResponse response = getHandler().getJsonConfiguration().getGson().fromJson(json, GetTransactionsResponse.class);
+		Assert.assertTrue(response.getTransactions().isEmpty());
+	}
+	
+	@Test
+	public void handle_Transactions_Returned() throws Exception {
+		Context context = new Context();
+		User sourceUser = context.createUser("Joe", 10);
+		User destinationUser = context.createUser("Kaho", 76);
+		int amount = 9;
+		Transaction transaction = context.transact(sourceUser.getId(), destinationUser.getId(), amount);
+		String json = getHandler().handle(null, null, context);
+		GetTransactionsResponse response = getHandler().getJsonConfiguration().getGson().fromJson(json, GetTransactionsResponse.class);
+		Assert.assertTrue(response.getTransactions().size() == 1);
+		Assert.assertTrue(response.getTransactions().contains(transaction));
 	}
 }

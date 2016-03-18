@@ -21,7 +21,7 @@ public class GetUsersHandler extends ProtocolHandler {
 	}
 
 	@Override
-	public String handle(Link link, String json) throws Exception {
-		return getJsonConfiguration().getGson().toJson(new GetUsersResponse(Context.INSTANCE.getUsers()));
+	public String handle(Link link, String json, Context context) throws Exception {
+		return getJsonConfiguration().getGson().toJson(new GetUsersResponse(context.getUsers()));
 	}
 }

@@ -1,5 +1,6 @@
 package com.revolut.exercise.protocol.root;
 
+import com.revolut.exercise.Context;
 import com.revolut.exercise.protocol.JsonConfiguration;
 import com.revolut.exercise.protocol.Link;
 import com.revolut.exercise.protocol.ProtocolHandler;
@@ -21,7 +22,7 @@ public class GetRootHandler extends ProtocolHandler {
 	}
 
 	@Override
-	public String handle(Link link, String json) throws Exception {
+	public String handle(Link link, String json, Context context) throws Exception {
 		return getJsonConfiguration().getGson().toJson(RESPONSE);
 	}
 }

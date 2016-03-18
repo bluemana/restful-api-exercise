@@ -1,5 +1,7 @@
 package com.revolut.exercise.protocol;
 
+import com.revolut.exercise.Context;
+
 public abstract class ProtocolHandler {
 	
 	private final JsonConfiguration jsonConfiguration;
@@ -14,5 +16,5 @@ public abstract class ProtocolHandler {
 		return jsonConfiguration;
 	}
 	
-	public abstract String handle(Link link, String json) throws Exception;
+	public abstract String handle(Link link, String json, Context context) throws Exception;
 }

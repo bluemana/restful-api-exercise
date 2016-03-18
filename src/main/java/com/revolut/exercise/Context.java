@@ -15,9 +15,7 @@ import org.apache.log4j.Logger;
 import com.revolut.exercise.core.Transaction;
 import com.revolut.exercise.core.User;
 
-public enum Context {
-
-	INSTANCE;
+public class Context {
 	
 	private static final Logger LOGGER = Logger.getLogger(Context.class);
 	
@@ -27,7 +25,7 @@ public enum Context {
 	private final Map<Integer, Transaction> transactions;
 	private int transactionId;
 	
-	private Context() {
+	public Context() {
 		executor = Executors.newSingleThreadExecutor();
 		users = new HashMap<Integer, User>();
 		userId = 0;
@@ -136,7 +134,7 @@ public enum Context {
 						transactions.put(transaction.getId(), transaction);
 						return transaction;
 					} else {
-						throw new IllegalArgumentException("Invalid transaction");
+						return null;
 					}
 				}
 			}).get();

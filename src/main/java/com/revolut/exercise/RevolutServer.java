@@ -17,18 +17,20 @@ public class RevolutServer {
 	
 	private final int port;
 	private final ProtocolConfiguration protocolConfiguration;
+	private final Context context;
 	
 	public RevolutServer() {
 		this(DEFAULT_PORT);
 	}
 	
 	public RevolutServer(int port) {
-		this(port, new ProtocolConfiguration(new JsonConfiguration()));
+		this(port, new ProtocolConfiguration(new JsonConfiguration()), new Context());
 	}
 	
-	public RevolutServer(int port, ProtocolConfiguration protocolConfiguration) {
+	public RevolutServer(int port, ProtocolConfiguration protocolConfiguration, Context context) {
 		this.port = port;
 		this.protocolConfiguration = protocolConfiguration;
+		this.context = context;
 	}
 	
 	public void run() throws Exception {
@@ -38,7 +40,7 @@ public class RevolutServer {
 			ServerBootstrap bootstrap = new ServerBootstrap();
 			bootstrap.group(incomingConnectionGroup, acceptedConnectionGroup);
 			bootstrap.channel(NioServerSocketChannel.class);
-			bootstrap.childHandler(new RevolutChannelInitializer(protocolConfiguration));
+			bootstrap.childHandler(new RevolutChannelInitializer(protocolConfiguration, context));
 			bootstrap.option(ChannelOption.SO_BACKLOG, 128);
 			bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 			ChannelFuture channelFuture = bootstrap.bind(port).sync();

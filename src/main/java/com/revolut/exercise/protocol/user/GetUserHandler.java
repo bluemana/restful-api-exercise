@@ -1,6 +1,7 @@
 package com.revolut.exercise.protocol.user;
 
 import com.revolut.exercise.Context;
+import com.revolut.exercise.core.User;
 import com.revolut.exercise.protocol.JsonConfiguration;
 import com.revolut.exercise.protocol.Link;
 import com.revolut.exercise.protocol.ProtocolHandler;
@@ -21,7 +22,12 @@ public class GetUserHandler extends ProtocolHandler {
 	}
 
 	@Override
-	public String handle(Link link, String json) throws Exception {
-		return getJsonConfiguration().getGson().toJson(new GetUserResponse(Context.INSTANCE.getUser(link.getResourceId())));
+	public String handle(Link link, String json, Context context) throws Exception {
+		User user = context.getUser(link.getResourceId());
+		if (user != null) {
+			return getJsonConfiguration().getGson().toJson(new GetUserResponse(user));
+		} else {
+			throw new IllegalArgumentException("User not found");
+		}
 	}
 }

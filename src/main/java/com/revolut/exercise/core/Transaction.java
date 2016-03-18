@@ -29,4 +29,20 @@ public class Transaction {
 	public int getAmount() {
 		return amount;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj != null && obj instanceof Transaction && ((Transaction) obj).id == id;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Integer.hashCode(id);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("transaction{id=%d;sourceId=%d;destinationId=%d;amount=%d}",
+				id, sourceUserId, destinationUserId, amount);
+	}
 }

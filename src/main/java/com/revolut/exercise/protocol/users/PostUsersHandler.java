@@ -22,9 +22,9 @@ public class PostUsersHandler extends ProtocolHandler {
 	}
 
 	@Override
-	public String handle(Link link, String json) throws Exception {
+	public String handle(Link link, String json, Context context) throws Exception {
 		PostUsersRequest request = getJsonConfiguration().getGson().fromJson(json, PostUsersRequest.class);
-		User user = Context.INSTANCE.createUser(request.getName(), request.getBalance());
+		User user = context.createUser(request.getName(), request.getBalance());
 		return getJsonConfiguration().getGson().toJson(new PostUsersResponse(user));
 	}
 }

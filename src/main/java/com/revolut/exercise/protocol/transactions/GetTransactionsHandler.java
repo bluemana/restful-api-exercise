@@ -21,7 +21,7 @@ public class GetTransactionsHandler extends ProtocolHandler {
 	}
 
 	@Override
-	public String handle(Link link, String json) {
-		return getJsonConfiguration().getGson().toJson(new GetTransactionsResponse(Context.INSTANCE.getTransactions()));
+	public String handle(Link link, String json, Context context) {
+		return getJsonConfiguration().getGson().toJson(new GetTransactionsResponse(context.getTransactions()));
 	}
 }

@@ -22,9 +22,13 @@ public class PostTransactionsHandler extends ProtocolHandler {
 	}
 
 	@Override
-	public String handle(Link link, String json) throws Exception {
+	public String handle(Link link, String json, Context context) throws Exception {
 		PostTransactionsRequest request = getJsonConfiguration().getGson().fromJson(json, PostTransactionsRequest.class);
-		Transaction transaction = Context.INSTANCE.transact(request.getSourceUserId(), request.getDestinationUserId(), request.getAmount());
-		return getJsonConfiguration().getGson().toJson(new PostTransactionsResponse(transaction));
+		Transaction transaction = context.transact(request.getSourceUserId(), request.getDestinationUserId(), request.getAmount());
+		if (transaction != null) {
+			return getJsonConfiguration().getGson().toJson(new PostTransactionsResponse(transaction));
+		} else {
+			throw new IllegalArgumentException("Invalid transaction");
+		}
 	}
 }

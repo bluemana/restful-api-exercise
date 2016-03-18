@@ -4,16 +4,19 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.revolut.exercise.protocol.JsonConfiguration;
-import com.revolut.exercise.protocol.ProtocolHandler;
+import com.revolut.exercise.protocol.ProtocolHandlerTest;
 
-public class GetRootHandlerTest {
+public class GetRootHandlerTest extends ProtocolHandlerTest {
+
+	public GetRootHandlerTest() {
+		super(new GetRootHandler(new JsonConfiguration()));
+	}
 
 	@Test
-	public void default_Get_Response() throws Exception {
+	public void handle_Default_DefaultResponse() throws Exception {
 		GetRootResponse expected = new GetRootResponse();
-		ProtocolHandler handler = new GetRootHandler(new JsonConfiguration());
-		String json = handler.handle(null, null);
-		GetRootResponse response = handler.getJsonConfiguration().getGson().fromJson(json, GetRootResponse.class);
-		Assert.assertArrayEquals(new Object[] {expected.getLinks()}, new Object[] {response.getLinks()});
+		String json = getHandler().handle(null, null, null);
+		GetRootResponse response = getHandler().getJsonConfiguration().getGson().fromJson(json, GetRootResponse.class);
+		Assert.assertTrue(expected.getLinks().equals(response.getLinks()));
 	}
 }
