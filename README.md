@@ -200,7 +200,7 @@ HTTP 200 OK
 
 The project depends on the following libraries:
 
-* [Log4J 1.2](https://logging.apache.org/log4j/1.2/)
+* [log4j 1.2](https://logging.apache.org/log4j/1.2/)
 * [Netty 5.0](http://netty.io/)
 * [Gson 2.6.2](https://sites.google.com/site/gson)
 * [JUnit 4](http://junit.org/)
