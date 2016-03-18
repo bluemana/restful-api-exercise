@@ -2,15 +2,19 @@ package com.revolut.exercise.protocol.users;
 
 import com.revolut.exercise.Context;
 import com.revolut.exercise.core.User;
-import com.revolut.exercise.protocol.Configuration;
+import com.revolut.exercise.protocol.JsonConfiguration;
 import com.revolut.exercise.protocol.Link;
 import com.revolut.exercise.protocol.ProtocolHandler;
 
 import io.netty.handler.codec.http.HttpMethod;
 
-public class PostUsersHandler implements ProtocolHandler {
-
+public class PostUsersHandler extends ProtocolHandler {
+	
 	private static final Link LINK = new Link("/users", "create", HttpMethod.POST);
+
+	public PostUsersHandler(JsonConfiguration jsonConfiguration) {
+		super(jsonConfiguration);
+	}
 
 	@Override
 	public Link getLink() {
@@ -19,8 +23,8 @@ public class PostUsersHandler implements ProtocolHandler {
 
 	@Override
 	public String handle(Link link, String json) throws Exception {
-		PostUsersRequest request = Configuration.DEFAULT_GSON.fromJson(json, PostUsersRequest.class);
+		PostUsersRequest request = getJsonConfiguration().getGson().fromJson(json, PostUsersRequest.class);
 		User user = Context.INSTANCE.createUser(request.getName(), request.getBalance());
-		return Configuration.DEFAULT_GSON.toJson(new PostUsersResponse(user));
+		return getJsonConfiguration().getGson().toJson(new PostUsersResponse(user));
 	}
 }

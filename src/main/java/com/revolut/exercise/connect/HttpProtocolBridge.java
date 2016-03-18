@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 
 import com.revolut.exercise.protocol.Link;
 import com.revolut.exercise.protocol.ProtocolHandler;
-import com.revolut.exercise.protocol.Configuration;
+import com.revolut.exercise.protocol.ProtocolConfiguration;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -24,6 +24,12 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 
 	private static final Logger LOGGER = Logger.getLogger(HttpProtocolBridge.class);
 	
+	private final ProtocolConfiguration protocolConfiguration;
+	
+	public HttpProtocolBridge(ProtocolConfiguration protocolConfiguration) {
+		this.protocolConfiguration = protocolConfiguration;
+	}
+	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		FullHttpRequest request = (FullHttpRequest) msg;
@@ -34,7 +40,7 @@ public class HttpProtocolBridge extends ChannelHandlerAdapter {
 			String uri = request.uri();
 			HttpMethod httpMethod = request.method();
 			Link link = new Link(uri, null, httpMethod);
-			ProtocolHandler handler = Configuration.HANDLERS.get(link);
+			ProtocolHandler handler = protocolConfiguration.getHandlers().get(link);
 			if (handler != null) {
 				try {
 					String json = handler.handle(link, content);

@@ -1,8 +1,18 @@
 package com.revolut.exercise.protocol;
 
-public interface ProtocolHandler {
+public abstract class ProtocolHandler {
 	
-	public Link getLink();
-
-	public String handle(Link link, String json) throws Exception;
+	private final JsonConfiguration jsonConfiguration;
+	
+	public ProtocolHandler(JsonConfiguration jsonConfiguration) {
+		this.jsonConfiguration = jsonConfiguration;
+	}
+	
+	public abstract Link getLink();
+	
+	public JsonConfiguration getJsonConfiguration() {
+		return jsonConfiguration;
+	}
+	
+	public abstract String handle(Link link, String json) throws Exception;
 }

@@ -6,7 +6,8 @@ import org.junit.Test;
 
 import com.revolut.exercise.Context;
 import com.revolut.exercise.core.User;
-import com.revolut.exercise.protocol.Configuration;
+import com.revolut.exercise.protocol.JsonConfiguration;
+import com.revolut.exercise.protocol.ProtocolConfiguration;
 import com.revolut.exercise.protocol.transactions.PostTransactionsRequest;
 import com.revolut.exercise.protocol.transactions.PostTransactionsResponse;
 import com.revolut.exercise.protocol.user.GetUserResponse;
@@ -32,7 +33,7 @@ public class HttpProtocolBridgeTest {
 	
 	@Test
 	public void http_GetMappedResource_200() throws Exception {
-		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge(new ProtocolConfiguration(new JsonConfiguration())));
 		HttpRequest request = createHttpRequest(HttpMethod.GET, "/", null);
 		channel.writeInbound(request);
 		channel.checkException();
@@ -42,7 +43,7 @@ public class HttpProtocolBridgeTest {
 	
 	@Test
 	public void http_GetUnmappedResource_400() throws Exception {
-		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge(new ProtocolConfiguration(new JsonConfiguration())));
 		HttpRequest request = createHttpRequest(HttpMethod.GET, "/something", null);
 		channel.writeInbound(request);
 		channel.checkException();
@@ -52,13 +53,14 @@ public class HttpProtocolBridgeTest {
 	
 	@Test
 	public void http_PostUsers_Created() throws Exception {
-		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		JsonConfiguration jsonConfiguration = new JsonConfiguration();
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge(new ProtocolConfiguration(jsonConfiguration)));
 		PostUsersRequest request = new PostUsersRequest("Giulio", 1000000);
-		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/users", Configuration.DEFAULT_GSON.toJson(request));
+		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/users", jsonConfiguration.getGson().toJson(request));
 		channel.writeInbound(httpRequest);
 		channel.checkException();
 		FullHttpResponse httpResponse = channel.readOutbound();
-		PostUsersResponse response = Configuration.DEFAULT_GSON.fromJson(
+		PostUsersResponse response = jsonConfiguration.getGson().fromJson(
 			httpResponse.content().toString(CharsetUtil.UTF_8), PostUsersResponse.class);
 		Assert.assertArrayEquals(new Object[] {
 			HttpResponseStatus.OK,
@@ -71,33 +73,35 @@ public class HttpProtocolBridgeTest {
 	
 	@Test
 	public void http_GetUserNoUser_Empty() throws Exception {
-		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		JsonConfiguration jsonConfiguration = new JsonConfiguration();
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge(new ProtocolConfiguration(jsonConfiguration)));
 		HttpRequest httpRequest = createHttpRequest(HttpMethod.GET, "/user/1", null);
 		channel.writeInbound(httpRequest);
 		channel.checkException();
 		FullHttpResponse httpResponse = channel.readOutbound();
 		String json = httpResponse.content().toString(CharsetUtil.UTF_8);
-		GetUserResponse getUserResponse = Configuration.DEFAULT_GSON.fromJson(json, GetUserResponse.class);
+		GetUserResponse getUserResponse = jsonConfiguration.getGson().fromJson(json, GetUserResponse.class);
 		Assert.assertArrayEquals(new Object[] {HttpResponseStatus.OK, null}, new Object[] {
 			httpResponse.status(), getUserResponse.getUser()});
 	}
 	
 	@Test
 	public void http_GetUser_Retrieved() throws Exception {
-		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		JsonConfiguration jsonConfiguration = new JsonConfiguration();
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge(new ProtocolConfiguration(jsonConfiguration)));
 		PostUsersRequest request = new PostUsersRequest("Giulio", 1000000);
-		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/users", Configuration.DEFAULT_GSON.toJson(request));
+		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/users", jsonConfiguration.getGson().toJson(request));
 		channel.writeInbound(httpRequest);
 		channel.checkException();
 		FullHttpResponse httpResponse = channel.readOutbound();
-		PostUsersResponse postUserResponse = Configuration.DEFAULT_GSON.fromJson(
+		PostUsersResponse postUserResponse = jsonConfiguration.getGson().fromJson(
 			httpResponse.content().toString(CharsetUtil.UTF_8), PostUsersResponse.class);
 		httpRequest = createHttpRequest(HttpMethod.GET, "/user/" + postUserResponse.getUser().getId(), null);
 		channel.writeInbound(httpRequest);
 		channel.checkException();
 		httpResponse = channel.readOutbound();
 		String json = httpResponse.content().toString(CharsetUtil.UTF_8);
-		GetUserResponse getUserResponse = Configuration.DEFAULT_GSON.fromJson(json, GetUserResponse.class);
+		GetUserResponse getUserResponse = jsonConfiguration.getGson().fromJson(json, GetUserResponse.class);
 		Assert.assertArrayEquals(new Object[] {
 			HttpResponseStatus.OK,
 			postUserResponse.getUser().getId(),
@@ -111,16 +115,17 @@ public class HttpProtocolBridgeTest {
 	
 	@Test
 	public void http_ExecuteTransaction_Executed() throws Exception {
+		JsonConfiguration jsonConfiguration = new JsonConfiguration();
 		User sourceUser = Context.INSTANCE.createUser("Giulio", 100);
 		User destinationUser = Context.INSTANCE.createUser("Adam", 0);
-		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge());
+		EmbeddedChannel channel = new EmbeddedChannel(new HttpProtocolBridge(new ProtocolConfiguration(jsonConfiguration)));
 		PostTransactionsRequest request = new PostTransactionsRequest(sourceUser.getId(), destinationUser.getId(), 100);
-		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/transactions", Configuration.DEFAULT_GSON.toJson(request));
+		HttpRequest httpRequest = createHttpRequest(HttpMethod.POST, "/transactions", jsonConfiguration.getGson().toJson(request));
 		channel.writeInbound(httpRequest);
 		channel.checkException();
 		FullHttpResponse httpResponse = channel.readOutbound();
 		String json = httpResponse.content().toString(CharsetUtil.UTF_8);
-		PostTransactionsResponse response = Configuration.DEFAULT_GSON.fromJson(json, PostTransactionsResponse.class);
+		PostTransactionsResponse response = jsonConfiguration.getGson().fromJson(json, PostTransactionsResponse.class);
 		Assert.assertArrayEquals(new Object[] {
 			HttpResponseStatus.OK,
 			request.getSourceUserId(),
