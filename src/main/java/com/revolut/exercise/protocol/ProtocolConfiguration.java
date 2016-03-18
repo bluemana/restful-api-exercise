@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.revolut.exercise.protocol.root.GetRootHandler;
+import com.revolut.exercise.protocol.transaction.GetTransactionHandler;
 import com.revolut.exercise.protocol.transactions.GetTransactionsHandler;
 import com.revolut.exercise.protocol.transactions.PostTransactionsHandler;
 import com.revolut.exercise.protocol.user.GetUserHandler;
@@ -31,6 +32,8 @@ public class ProtocolConfiguration {
 		handler = new GetTransactionsHandler(jsonConfiguration);
 		handlers.put(handler.getLink(), handler);
 		handler = new PostTransactionsHandler(jsonConfiguration);
+		handlers.put(handler.getLink(), handler);
+		handler = new GetTransactionHandler(jsonConfiguration);
 		handlers.put(handler.getLink(), handler);
 	}
 	

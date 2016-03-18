@@ -67,14 +67,14 @@ public class Context {
 		return result;
 	}
 	
-	public User getUser(int id) {
+	public User getUser(int userId) {
 		User result = null;
 		try {
 			result = executor.submit(new Callable<User>() {
 
 				@Override
 				public User call() throws Exception {
-					return users.get(id);
+					return users.get(userId);
 				}
 			}).get();
 		} catch (InterruptedException | ExecutionException e) {
@@ -136,6 +136,22 @@ public class Context {
 					} else {
 						return null;
 					}
+				}
+			}).get();
+		} catch (InterruptedException | ExecutionException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+		return result;
+	}
+	
+	public Transaction getTransaction(int transactionId) {
+		Transaction result = null;
+		try {
+			result = executor.submit(new Callable<Transaction>() {
+
+				@Override
+				public Transaction call() throws Exception {
+					return transactions.get(transactionId);
 				}
 			}).get();
 		} catch (InterruptedException | ExecutionException e) {
