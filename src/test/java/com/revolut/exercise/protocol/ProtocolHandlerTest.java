@@ -16,7 +16,7 @@ public abstract class ProtocolHandlerTest {
 	}
 	
 	@Test
-	public void configuration_Default_handleRegistered() {
+	public void configuration_Default_handlerRegistered() {
 		ProtocolConfiguration protocolConfiguration = new ProtocolConfiguration(new JsonConfiguration());
 		ProtocolHandler defaultHandler = protocolConfiguration.getHandlers().get(handler.getLink());
 		Assert.assertNotNull(defaultHandler);
